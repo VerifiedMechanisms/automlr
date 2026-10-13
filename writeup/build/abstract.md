@@ -1,0 +1,13 @@
+# Formally Verified Autoresearch for Analyzing the Expressivity of Multi-Head Attention
+
+## TL;DR
+
+LLM-assisted research yields a linear-fractional normal form and Lean-verified bounds on the number of attention heads needed to represent Boolean functions.
+
+## Keywords
+
+Autonomous machine learning research; transformer expressivity; multi-head attention; attention-head complexity; Boolean functions; threshold degree; formal verification; Lean 4.
+
+## Abstract
+
+Multi-head attention is a central component of the transformer architecture, yet how its expressivity depends on the number of heads remains poorly understood. We study a one-layer, attention-only transformer with additive positional embeddings and define the head complexity $H^\ast(f)$ of a Boolean function $f$ as the minimum number of attention heads required to represent it. We derive an exact linear-fractional normal form for head complexity, prove a general threshold-degree lower bound, and give an explicit ten-bit function for which this bound is strict. For symmetric Boolean functions, we independently show that head complexity equals the number of times the function changes value between consecutive Hamming-weight levels, even when positional embeddings are allowed. This agrees with the concurrent characterization of [Hsu and Xu (2026)](https://arxiv.org/abs/2608.04243) in a model without positional embeddings. The symmetric lower bound combines our general threshold-degree bound with the classical result of [Aspnes et al. (1994)](https://doi.org/10.1007/BF01215346). These results were discovered and formalized by a frontier model through conjecture generation, theorem proving, and machine verification, while human researchers asked the high-level questions and reviewed the generated theorems. We make the Lean formalization and research traces publicly available to support agent-assisted theorem proving and formal verification in mechanistic interpretability. This work provides a proof of concept for using the capabilities of frontier models, grounded by formal verification, to develop an understanding of transformer architectures.
