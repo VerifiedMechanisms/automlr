@@ -1,10 +1,11 @@
 #!/bin/bash
-# Build the writeup PDF and publish it one level up. Run from this directory.
+# Build the writeup PDF and publish it at the repository root.
 set -e
 cd "$(dirname "$0")"
+output_pdf="$(cd ../.. && pwd)/formally-verified-autoresearch-mha.pdf"
 
 # pdflatex is silenced to keep the build quiet, but a LaTeX error would then
-# print nothing at all and leave the previous ../neurips_2026.pdf in place
+# print nothing at all and leave the previous published PDF in place
 # looking current. Surface the error block instead; the memory dump after it
 # is noise.
 run_latex() {
@@ -24,12 +25,12 @@ run_latex
 run_latex
 rm -f neurips_2026.aux neurips_2026.bbl neurips_2026.blg \
   neurips_2026.log neurips_2026.out neurips_2026.toc
-# cp keeps ../neurips_2026.pdf's inode so PDF viewers watching the file
+# cp keeps the published PDF's inode so PDF viewers watching the file
 # refresh; mv would swap the inode out from under them.
-cp neurips_2026.pdf ../neurips_2026.pdf
+cp neurips_2026.pdf "$output_pdf"
 rm neurips_2026.pdf
 if command -v pdfinfo > /dev/null 2>&1; then
-  echo "Published: ../neurips_2026.pdf ($(pdfinfo ../neurips_2026.pdf | awk '/^Pages:/ {print $2}') pages)"
+  echo "Published: $output_pdf ($(pdfinfo "$output_pdf" | awk '/^Pages:/ {print $2}') pages)"
 else
-  echo "Published: ../neurips_2026.pdf"
+  echo "Published: $output_pdf"
 fi

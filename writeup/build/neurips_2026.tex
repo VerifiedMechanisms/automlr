@@ -161,18 +161,17 @@ The \emph{head complexity} of $f$ is the least number of heads in an exact repre
 \label{eq:hstar}
 \end{equation}
 
-Equations~\ref{eq:output} and \ref{eq:readout} define $\hstar(f)$ through the full set of embeddings and weight matrices, making it difficult to analyze directly. Our first result shows that, after readout, each attention head can be replaced by a single linear-fractional function \citep{charnes1962programming}, yielding an equivalent characterization of $\hstar(f)$. We now define this one-head building block, which we call an atom and provide the intuition behind this construction in Appendix~\ref{app:proof-normal-form}.
+Each head contributes one linear-fractional function after readout \citep{charnes1962programming}, giving an equivalent characterization of $\hstar(f)$ without tracking the embeddings and weight matrices in Equations~\eqref{eq:output} and~\eqref{eq:readout}. We call this one-head building block an atom.
 
 \begin{definition}[Linear-fractional atom]
 \label{def:atom}
-For $\gamma,\alpha,\rho_1,\ldots,\rho_n\in\mathbb{R}_{>0}$ and $\eta,\beta,m_1,\ldots,m_n\in\mathbb{R}$, define the corresponding \emph{linear-fractional atom} $\phi:\bits^n\to\mathbb{R}$ by
+A \emph{linear-fractional atom} is a function $\phi:\bits^n\to\mathbb{R}$ of the form
 \begin{equation}
-\phi(\mathbf{x})=
-\frac{\eta+\sum_{i=1}^{n}\rho_i\alpha^{x_i}(m_i+\beta x_i)}
-{\gamma+\sum_{i=1}^{n}\rho_i\alpha^{x_i}},
+\phi(\mathbf{x})=\frac{\mathbf{A}^{\top}\mathbf{x}+b}{\mathbf{C}^{\top}\mathbf{x}+d},
 \qquad \mathbf{x}\in\bits^n.
 \label{eq:frac-atom}
 \end{equation}
+The coefficients $\mathbf{A},\mathbf{C}\in\mathbb{R}^n$ and $b,d\in\mathbb{R}$ must arise from the parameterization in Appendix~\ref{app:proof-normal-form}, which gives their formulas and constraints. In particular, the denominator is strictly positive on the Boolean cube.
 \end{definition}
 \smallskip
 
@@ -188,7 +187,7 @@ For every Boolean function $f$,
 \hstar(f)=L_{\mathrm{frac}}(f).
 \end{equation*}
 \end{theorem}
-Theorem~\ref{thm:normal-form} reduces head complexity to counting linear-fractional atoms: each head contributes one atom after readout, and each atom can be realized by one head. Appendix~\ref{app:proof-normal-form} proves this equivalence. The upside of Theorem~\ref{thm:normal-form} is that the weight matrices never appear in the rest of the analysis.
+Theorem~\ref{thm:normal-form} reduces head complexity to counting atoms: each head contributes one atom after readout, and each atom can be realized by one head. Appendix~\ref{app:proof-normal-form} proves this equivalence.
 
 \begin{corollary}[One head]
 \label{cor:one-head}
@@ -602,7 +601,72 @@ The query token occurs last, so full attention and a standard causal mask expose
 \subsection{Linear-Fractional Normal Form}
 \label{app:proof-normal-form}
 
-This appendix derives Definition~\ref{def:atom} from Equation~\eqref{eq:output} and proves Theorem~\ref{thm:normal-form}. Fix an $H$-head model with readout $(\mathbf{w},\tau)$, and let $\mathbf{y}_q^{(h)}(\mathbf{x})$ denote the projected output of head $h$, that is, the $h$-th summand in Equation~\eqref{eq:output}. Define its scalar contribution after readout by
+We give the parameterization and exact coefficient constraints used in Definition~\ref{def:atom}, then prove the correspondence between these affine ratios and attention heads asserted by Theorem~\ref{thm:normal-form}.
+
+\paragraph{Parameterization and affine coefficients.}
+For $\gamma,\alpha,\rho_1,\ldots,\rho_n>0$ and $\eta,\beta,m_1,\ldots,m_n\in\mathbb{R}$, define
+\begin{equation}
+\phi(\mathbf{x})=
+\frac{\eta+\sum_{i=1}^{n}\rho_i\alpha^{x_i}(m_i+\beta x_i)}
+{\gamma+\sum_{i=1}^{n}\rho_i\alpha^{x_i}},
+\qquad \mathbf{x}\in\bits^n.
+\label{eq:atom-parameterization}
+\end{equation}
+For Boolean inputs, $\alpha^{x_i}=1+(\alpha-1)x_i$ and $x_i^2=x_i$. Expanding the numerator and denominator therefore gives Equation~\eqref{eq:frac-atom}, with
+\begin{equation}
+\begin{aligned}
+A_i&=\rho_i\bigl((\alpha-1)m_i+\alpha\beta\bigr),
+& b&=\eta+\sum_i\rho_i m_i,\\
+C_i&=\rho_i(\alpha-1),
+& d&=\gamma+\sum_i\rho_i.
+\end{aligned}
+\label{eq:affine-atom-coefficients}
+\end{equation}
+
+\paragraph{Exact coefficient constraints.}
+A tuple $(\mathbf{A},b,\mathbf{C},d)$ is obtained from Equation~\eqref{eq:affine-atom-coefficients} if and only if it satisfies the following conditions, which we call \emph{admissibility}:
+\begin{enumerate}[label=(\roman*),leftmargin=*,nosep]
+  \item $\mathbf{C}^{\top}\mathbf{x}+d>0$ for every $\mathbf{x}\in\bits^n$.
+  \item The entries of $\mathbf{C}$ are all strictly positive, all strictly negative, or all zero.
+  \item If $\mathbf{C}=\mathbf{0}$, the entries of $\mathbf{A}$ are likewise all strictly positive, all strictly negative, or all zero.
+\end{enumerate}
+For a nonconstant denominator, the numerator coefficients are unrestricted; $b$ is unrestricted in every case.
+
+\paragraph{Necessity.}
+The denominator in Equation~\eqref{eq:atom-parameterization} is strictly positive on the Boolean cube. Since $C_i=\rho_i(\alpha-1)$ and every $\rho_i>0$, its slopes have a common strict sign when $\alpha\ne1$. When $\alpha=1$, all $C_i=0$ and $A_i=\rho_i\beta$, giving the stated restriction on the numerator slopes. The case $n=0$ has no slopes and only requires $d>0$.
+
+\paragraph{Sufficiency.}
+Fix an admissible tuple. Evaluating its denominator at $\mathbf{x}=\mathbf{0}$ gives $d>0$. If $\mathbf{C}\ne\mathbf{0}$, set $S=\sum_i|C_i|$ and choose
+\begin{equation}
+\alpha=\begin{cases}
+2+S/d, & C_i>0\text{ for all }i,\\
+(d-S)/(2d), & C_i<0\text{ for all }i.
+\end{cases}
+\end{equation}
+In the negative case, denominator positivity at $\mathbf{x}=\mathbf{1}$ gives $S<d$. In both cases, $\alpha>0$, and the assignments
+\begin{equation}
+\begin{aligned}
+\rho_i&=\frac{C_i}{\alpha-1},
+& \gamma&=d-\sum_i\rho_i,\\
+\beta&=0,
+& m_i&=\frac{A_i}{C_i},
+\qquad \eta=b-\sum_i\rho_i m_i
+\end{aligned}
+\end{equation}
+have $\rho_i>0$ and $\sum_i\rho_i<d$, hence $\gamma>0$. Substitution into Equation~\eqref{eq:affine-atom-coefficients} recovers the prescribed tuple exactly.
+
+If $\mathbf{C}=\mathbf{0}$ and $\mathbf{A}\ne\mathbf{0}$, let $\sigma\in\{-1,1\}$ be the common sign of the $A_i$ and put $q=1+\sum_i|A_i|/d$. Set
+\begin{equation}
+\alpha=1,\quad \beta=\sigma q,\quad
+\rho_i=|A_i|/q,\quad \gamma=d-\sum_i\rho_i,\quad
+m_i=0,\quad \eta=b.
+\end{equation}
+Then $\rho_i>0$, $\gamma>0$, and $\rho_i\beta=A_i$. If $\mathbf{A}=\mathbf{C}=\mathbf{0}$, take $\alpha=1$, $\beta=m_i=0$, $\eta=b$, and $\rho_i=\gamma=d/(n+1)$. This also covers $n=0$. Thus every admissible coefficient tuple comes from the parameterization.
+
+These conditions characterize the coefficients obtained by expanding an atom. Different coefficient tuples can represent the same function on the Boolean cube. The equality between Equations~\eqref{eq:atom-parameterization} and~\eqref{eq:frac-atom} uses the Boolean-input assumption.
+
+\paragraph{Decomposing the readout score.}
+Fix an $H$-head model with readout $(\mathbf{w},\tau)$, and let $\mathbf{y}_q^{(h)}(\mathbf{x})$ denote the projected output of head $h$, that is, the $h$-th summand in Equation~\eqref{eq:output}. Define its scalar contribution after readout by
 \begin{equation}
 g^{(h)}(\mathbf{x})
 :=\left\langle\mathbf{w},\mathbf{y}_q^{(h)}(\mathbf{x})\right\rangle,
@@ -694,7 +758,7 @@ g^{(h)}(\mathbf{x})
 \bigl(\alpha^{(h)}\bigr)^{x_i}}.
 \label{eq:normal-head-calculation}
 \end{align}
-The exponential definitions imply $\rho_i^{(h)},\alpha^{(h)},\gamma^{(h)}>0$, so Equation~\eqref{eq:normal-head-calculation} is a linear-fractional atom in the sense of Definition~\ref{def:atom}. On the cube, $\alpha^{x_i}=1+(\alpha-1)x_i$ and $x_i^2=x_i$, so its numerator and denominator are affine functions of $\mathbf{x}$, and the denominator is positive. By Equation~\eqref{eq:normal-score-decomposition}, the complete pre-threshold score is
+The exponential definitions give $\rho_i^{(h)},\alpha^{(h)},\gamma^{(h)}>0$, so Equation~\eqref{eq:normal-head-calculation} has the parameterization in Equation~\eqref{eq:atom-parameterization}. Applying Equation~\eqref{eq:affine-atom-coefficients} to head $h$ yields the affine ratio in Equation~\eqref{eq:frac-atom}, with admissible coefficients. Hence $g^{(h)}$ is an atom in the sense of Definition~\ref{def:atom}. By Equation~\eqref{eq:normal-score-decomposition}, the complete pre-threshold score is
 \begin{equation}
 \left\langle\mathbf{w},\mathbf{h}_q(\mathbf{x})\right\rangle-\tau
 =\underbrace{\left\langle\mathbf{w},\mathbf{u}_q\right\rangle-\tau}_{c}
@@ -703,7 +767,7 @@ The exponential definitions imply $\rho_i^{(h)},\alpha^{(h)},\gamma^{(h)}>0$, so
 Thus every $H$-head representation gives an $H$-atom representation, proving $L_{\mathrm{frac}}(f)\leq\hstar(f)$.
 
 \paragraph{From atoms to heads.}
-Conversely, consider prescribed atoms $\phi_1,\ldots,\phi_H$, with their parameters indexed by $h$. Choose $d_{\mathrm{model}}\geq4H$ and orthonormal vectors $\mathbf{q}^{(h)},\mathbf{k}^{(h)},\mathbf{v}^{(h)},\mathbf{o}^{(h)}\in\mathbb{R}^{d_{\mathrm{model}}}$ for each $h$. Let $d_{\mathrm{head}}\geq1$ be arbitrary, and fix a unit vector $\mathbf{r}\in\mathbb{R}^{d_{\mathrm{head}}}$. Choose the embeddings
+Conversely, consider a score $c+\sum_{h=1}^{H}\phi_h(\mathbf{x})$ with atoms as in Definition~\ref{def:atom}. For each atom, choose parameters in Equation~\eqref{eq:atom-parameterization} that produce its affine coefficients, and index these parameters by $h$. The coefficient characterization above guarantees such a choice. If $H=0$, take $\mathbf{w}=0$ and $\tau=-c$ to realize the constant score. For $H\geq1$, choose $d_{\mathrm{model}}\geq4H$ and orthonormal vectors $\mathbf{q}^{(h)},\mathbf{k}^{(h)},\mathbf{v}^{(h)},\mathbf{o}^{(h)}\in\mathbb{R}^{d_{\mathrm{model}}}$ for each $h$. Let $d_{\mathrm{head}}\geq1$ be arbitrary, and fix a unit vector $\mathbf{r}\in\mathbb{R}^{d_{\mathrm{head}}}$. Choose the embeddings
 \begin{align}
 \mathbf{e}_0&=0,
 &
@@ -759,23 +823,16 @@ c+\phi(\mathbf{x})
 has the same sign as the affine function $cD+N$. Thus $f$ is a linear threshold function.
 
 \paragraph{Linear threshold implies at most one head.}
-Suppose $f(\mathbf{x})=1$ exactly when $\theta_0+\sum_{i=1}^{n}\theta_ix_i>0$. In Equation~\eqref{eq:frac-atom}, take
+Suppose $f(\mathbf{x})=1$ exactly when $\theta_0+\sum_{i=1}^{n}\theta_ix_i>0$. Consider
 \begin{equation}
-\alpha=2,\qquad \gamma=1,\qquad \rho_i=1,\qquad \beta=0,\qquad m_i=\theta_i,\qquad
-\eta=\theta_0-\sum_{i=1}^{n}\theta_i.
+\phi(\mathbf{x})=\frac{\theta_0+\sum_{i=1}^{n}\theta_ix_i}{1+\sum_{i=1}^{n}x_i}.
 \end{equation}
-Since $2^{x_i}=1+x_i$ on the Boolean cube, the numerator of the resulting atom is
-\begin{equation}
-\theta_0-\sum_{i=1}^{n}\theta_i
-+\sum_{i=1}^{n}2^{x_i}\theta_i
-=\theta_0+\sum_{i=1}^{n}\theta_ix_i.
-\end{equation}
-Its denominator $1+\sum_i2^{x_i}$ is strictly positive, so the atom has the same sign as the given affine threshold function. Taking $c=0$ in Definition~\ref{def:lfrac} yields $L_{\mathrm{frac}}(f)\leq1$, and Theorem~\ref{thm:normal-form} then gives $\hstar(f)\leq1$.
+Its denominator is strictly positive and has all slopes equal to one. Hence its coefficients are admissible by Appendix~\ref{app:proof-normal-form}, and it is an atom with the same sign as the given affine threshold function. This also covers $n=0$, when both slope vectors are empty. Taking $c=0$ in Definition~\ref{def:lfrac} yields $L_{\mathrm{frac}}(f)\leq1$, and Theorem~\ref{thm:normal-form} then gives $\hstar(f)\leq1$.
 
 \subsection{Threshold-Degree Lower Bound}
 \label{app:proof-threshold}
 
-We prove Theorem~\ref{thm:threshold}. On the Boolean cube, the numerator and denominator of every atom in Equation~\eqref{eq:frac-atom} are affine functions, because $x_i\in\{0,1\}$ and $x_i^2=x_i$. After moving the readout threshold into a constant, an $H$-head classifier therefore has a scalar score
+We prove Theorem~\ref{thm:threshold}. Equation~\eqref{eq:frac-atom} writes each atom as a ratio of affine functions with a denominator that is strictly positive on the Boolean cube. By Theorem~\ref{thm:normal-form}, after moving the readout threshold into a constant, an $H$-head classifier therefore has a scalar score
 \begin{equation}
 S(\mathbf{x})=c+\sum_{h=1}^{H}\frac{N_h(\mathbf{x})}{D_h(\mathbf{x})},
 \qquad D_h(\mathbf{x})>0,
@@ -873,16 +930,17 @@ Thus $M$ is strictly column diagonally dominant and therefore invertible, so it 
 
 We prove Theorem~\ref{thm:weighted-upper}. Set $M=|\operatorname{Im}(t_\lambda)|$. The claim is immediate when $M=1$, so assume $M\geq2$. Let $\Lambda=\sum_i\lambda_i$ and enumerate the image of $t_\lambda$ as $0=\tau_0<\tau_1<\cdots<\tau_{M-1}$.
 
-Choose distinct $\alpha_1,\ldots,\alpha_{M-1}>1$. For each $j$, take the atom in Equation~\eqref{eq:frac-atom} with $\gamma=1$, $\rho_i=\lambda_i$, $\alpha=\alpha_j$, $\eta=m_i=0$, and $\beta=1$. On the Boolean cube, this gives
+Choose distinct $\alpha_1,\ldots,\alpha_{M-1}>1$ and define
 \begin{equation}
 \phi_j(\mathbf{x})=\frac{\alpha_j t_\lambda(\mathbf{x})}{1+\Lambda+(\alpha_j-1)t_\lambda(\mathbf{x})}
 =g_j(t_\lambda(\mathbf{x})).
 \label{eq:weighted-response}
 \end{equation}
+The denominator is strictly positive on the cube and has strictly positive slopes $(\alpha_j-1)\lambda_i$. Thus these affine ratios are atoms by the coefficient characterization in Appendix~\ref{app:proof-normal-form}.
 
 It remains to show that $1,g_1,\ldots,g_{M-1}$ form a basis for functions on $\operatorname{Im}(t_\lambda)$. Suppose a linear combination of these functions vanishes on the image. Evaluation at $\tau_0=0$ eliminates its constant coefficient. Dividing the remaining equations by each $\tau_m>0$ and setting $r_j=(1+\Lambda)/(\alpha_j-1)$ reduces them to $\sum_jd_j/(\tau_m+r_j)=0$ for $m=1,\ldots,M-1$. After multiplication by $\prod_j(s+r_j)$, the corresponding rational function has a numerator of degree at most $M-2$ with $M-1$ distinct roots. It is therefore identically zero. Evaluating at each pole $-r_j$ shows that every $d_j$, and hence every original coefficient, vanishes. The $M$ functions are linearly independent on an $M$-point set, so they form a basis.
 
-Interpolating the target signs gives a score $c+\sum_{j=1}^{M-1}a_jg_j(t_\lambda(\mathbf{x}))$. Each scaled term is an atom: replace $\beta=1$ by $\beta=a_j$ in the construction above. The normal form in Theorem~\ref{thm:normal-form} therefore gives an $(M-1)$-head representation. Taking $\lambda_i=2^{i-1}$ makes $t_\lambda$ injective on the Boolean cube, so $M=2^n$ and $\hstar(f)\leq2^n-1$ for every Boolean function.
+Interpolating the target signs gives a score $c+\sum_{j=1}^{M-1}a_jg_j(t_\lambda(\mathbf{x}))$. Each scaled term is an atom: multiplying its numerator by $a_j$ preserves admissibility because its denominator has strictly positive slopes. The normal form in Theorem~\ref{thm:normal-form} therefore gives an $(M-1)$-head representation. Taking $\lambda_i=2^{i-1}$ makes $t_\lambda$ injective on the Boolean cube, so $M=2^n$ and $\hstar(f)\leq2^n-1$ for every Boolean function.
 
 \subsection{Exact Symmetric Characterization}
 \label{app:proof-symmetric}
@@ -910,14 +968,7 @@ For the upper bound, assume $C=\signchanges>0$ and choose distinct $r_1,\ldots,r
 \frac{P(z)}{B(z)}=c+\sum_{h=1}^{C}\frac{d_h}{z+r_h}.
 \label{eq:symmetric-partial-fractions}
 \end{equation}
-Each shifted reciprocal is realized by one atom. Indeed, for fixed $r>0$ and $d\in\mathbb{R}$, choose $\alpha>1+n/r$ in Equation~\eqref{eq:frac-atom}, set
-\begin{equation}
-\rho_i=1,\qquad
-\gamma=(\alpha-1)r-n,\qquad
-\eta=(\alpha-1)d,\qquad
-m_i=\beta=0.
-\end{equation}
-Then $\gamma>0$ and the atom reduces exactly to $d/(|\mathbf{x}|+r)$. Equation~\eqref{eq:symmetric-partial-fractions} is therefore realized with $C$ heads. If $C=0$, $f$ is constant and needs no heads. This proves $\hstar(f)\leq\signchanges$ and completes the equality.
+Each shifted reciprocal $d_h/(|\mathbf{x}|+r_h)$ is an atom by Appendix~\ref{app:proof-normal-form}: its denominator is strictly positive on the cube and has all slopes equal to one, while its numerator is constant. Equation~\eqref{eq:symmetric-partial-fractions} is therefore realized with $C$ heads. If $C=0$, $f$ is constant and needs no heads. This proves $\hstar(f)\leq\signchanges$ and completes the equality.
 
 \section{Initial Prompt and Repository README of the Autonomous Run}
 \label{app:prompt}
