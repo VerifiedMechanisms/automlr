@@ -1,0 +1,200 @@
+{
+  "schema": "formalize.now/rpi/v0-provisional",
+  "project": "automlr",
+  "paper": {
+    "arxiv": "2610.25341",
+    "title": "Formally Verified Autoresearch for Analyzing the Expressivity of Multi-Head Attention",
+    "authors": ["Karthik Viswanathan", "Plamen Dimitrov", "Stefano Rocca", "Sarayu Sirikonda"],
+    "numbering_checked_against": "formally-verified-autoresearch-mha.pdf (bundled copy); arXiv PDF unconfirmed"
+  },
+  "upstream": {
+    "repository": "https://github.com/VerifiedMechanisms/automlr",
+    "commit": "33daec7fd0092d9215b9692c8241676a3c05a82e",
+    "lean": "leanprover/lean4:v4.31.0",
+    "mathlib": "v4.31.0"
+  },
+  "fork": {
+    "repository": "https://github.com/thinkthoughts/automlr",
+    "branch": "formalize-now/symmetric-maximal"
+  },
+  "verification_run": {
+    "date": "2026-11-02",
+    "command": "bash artifacts/scripts/validate.sh",
+    "baseline": {"modules": 41, "theorems_audited": 764, "build_jobs": 2413, "result": "pass"},
+    "with_extensions": {"modules": 43, "theorems_audited": 788, "build_jobs": 2415, "result": "pass"},
+    "allowed_axioms": ["propext", "Classical.choice", "Quot.sound"],
+    "not_run": ["comparator", "check_md_math.py (absent upstream)"]
+  },
+  "status_vocabulary": {
+    "paper-claimed": "Stated in the paper.",
+    "upstream-formalized": "A Lean declaration exists upstream at the pinned commit.",
+    "locally-reproduced": "Built, placeholder-scanned and axiom-audited in this fork.",
+    "partial": "Part of the paper statement has a Lean declaration; the remainder is listed in gaps.",
+    "documentary": "Prose content with no Lean target.",
+    "intake-record": "Historical research target found already proved upstream.",
+    "fork-extension-verified": "Written in this fork and passed the same checks."
+  },
+  "entries": [
+    {
+      "id": "ARCH-001",
+      "kind": "paper",
+      "paper_ref": "Theorem 1",
+      "lean_numbering": "Theorem 10",
+      "target": "Linear-fractional normal form; equivalence with head complexity",
+      "declarations": [
+        {"name": "HeadComplexity.HStar_eq_Lfrac", "file": "formalization/HeadComplexity/Results/FractionalNormalForm.lean", "statement": "HStar n f = Lfrac n f"},
+        {"name": "HeadComplexity.SharedHStar_eq_Lfrac", "file": "formalization/HeadComplexity/Results/FractionalNormalForm.lean", "statement": "SharedHStar n f = Lfrac n f"},
+        {"name": "HeadComplexity.computableWithSharedHeadsN_iff_fracComputable", "file": "formalization/HeadComplexity/Results/FractionalNormalForm.lean", "statement": "computableWithSharedHeadsN n H f ↔ fracComputable n H f"}
+      ],
+      "status": ["paper-claimed", "upstream-formalized", "locally-reproduced"],
+      "gaps": []
+    },
+    {
+      "id": "ARCH-002",
+      "kind": "paper",
+      "paper_ref": "Corollary 1",
+      "lean_numbering": "Theorem 11",
+      "target": "Zero-head and one-head characterization",
+      "declarations": [
+        {"name": "HeadComplexity.HStar_eq_zero_iff", "file": "formalization/HeadComplexity/Results/LowComplexity.lean", "statement": "HStar n f = 0 ↔ ∀ x y, f x = f y"},
+        {"name": "HeadComplexity.HStar_eq_one_iff", "file": "formalization/HeadComplexity/Results/LowComplexity.lean", "statement": "HStar n f = 1 ↔ (¬ (∀ x y, f x = f y) ∧ isLTF f)"}
+      ],
+      "status": ["paper-claimed", "upstream-formalized", "locally-reproduced"],
+      "gaps": ["Paper states H* ≤ 1 iff LTF; Lean states H* = 1 iff nonconstant LTF. Bridging lemma unnamed (ROADMAP R-002)."]
+    },
+    {
+      "id": "ARCH-003",
+      "kind": "paper",
+      "paper_ref": "Theorem 2",
+      "lean_numbering": "Theorem 6",
+      "target": "Threshold-degree lower bound",
+      "declarations": [
+        {"name": "HeadComplexity.degree_le_of_computableWithHeadsN", "file": "formalization/HeadComplexity/Results/ThresholdDegree.lean", "statement": "computableWithHeadsN n H f → ThresholdDegLE f H", "alias_of": "HeadComplexity.signReprDegLe_of_computableWithHeadsN"}
+      ],
+      "status": ["paper-claimed", "upstream-formalized", "locally-reproduced"],
+      "gaps": ["Stated per head count H rather than as thresholdDeg f ≤ HStar n f (ROADMAP R-002)."]
+    },
+    {
+      "id": "ARCH-004",
+      "kind": "paper",
+      "paper_ref": "Theorem 3",
+      "lean_numbering": "Theorem 13",
+      "target": "Explicit ten-bit strict separation",
+      "declarations": [
+        {"name": "HeadComplexity.thresholdDeg_f10", "file": "formalization/HeadComplexity/Results/StrictSeparation.lean", "statement": "thresholdDeg f10 = 2"},
+        {"name": "HeadComplexity.HStar_f10_ge_three", "file": "formalization/HeadComplexity/Results/StrictSeparation.lean", "statement": "3 ≤ HStar 10 f10"},
+        {"name": "HeadComplexity.f10_strict_separation", "file": "formalization/HeadComplexity/Results/StrictSeparation.lean", "statement": "thresholdDeg f10 < HStar 10 f10"}
+      ],
+      "status": ["paper-claimed", "upstream-formalized", "locally-reproduced"],
+      "gaps": []
+    },
+    {
+      "id": "ARCH-005",
+      "kind": "paper",
+      "paper_ref": "Theorem 4",
+      "lean_numbering": "Theorem 9",
+      "target": "Weighted-sum interpolation upper bound",
+      "declarations": [
+        {"name": "HeadComplexity.HStar_le_weighted_sum", "file": "formalization/HeadComplexity/Results/WeightedUpperBound.lean", "statement": "(∀ i, 0 < lam i) → (∀ bits, f bits = G (wT lam bits)) → HStar n f ≤ (Finset.univ.image (wT lam)).card - 1"},
+        {"name": "HeadComplexity.HStar_le_universal_boolean", "file": "formalization/HeadComplexity/Results/WeightedUpperBound.lean", "statement": "HStar n f ≤ 2 ^ n - 1"}
+      ],
+      "status": ["paper-claimed", "upstream-formalized", "locally-reproduced"],
+      "gaps": []
+    },
+    {
+      "id": "ARCH-006",
+      "kind": "paper",
+      "paper_ref": "Theorem 5",
+      "lean_numbering": "Theorem 12",
+      "target": "Exact characterization for symmetric Boolean functions: H*(f) = deg±(f) = C(F)",
+      "declarations": [
+        {"name": "HeadComplexity.HStar_symmetricFn", "file": "formalization/HeadComplexity/Results/SymmetricComplexity.lean", "statement": "HStar n (symmetricFn F) = signChanges n F"}
+      ],
+      "status": ["paper-claimed", "upstream-formalized", "locally-reproduced", "partial"],
+      "gaps": ["deg±(f) = C(F) for symmetric f has no named declaration; ingredients exist upstream (ROADMAP R-001)."]
+    },
+    {
+      "id": "ARCH-007",
+      "kind": "paper",
+      "paper_ref": "Corollary 2",
+      "lean_numbering": "Theorem 8",
+      "target": "Parity head complexity",
+      "declarations": [
+        {"name": "HeadComplexity.HStar_parity", "file": "formalization/HeadComplexity/Results/ExactFamilies.lean", "statement": "HStar n (PARITY n) = n"}
+      ],
+      "status": ["paper-claimed", "upstream-formalized", "locally-reproduced"],
+      "gaps": [],
+      "notes": "Paper states n ≥ 1; the Lean declaration holds for every n, including n = 0."
+    },
+    {
+      "id": "ARCH-008",
+      "kind": "paper",
+      "paper_ref": "Appendix C (research plan); Appendix D in bundled PDF",
+      "lean_numbering": null,
+      "target": "Comparison with Hsu–Xu and other concurrent results",
+      "declarations": [],
+      "status": ["paper-claimed", "documentary"],
+      "gaps": ["Appendix letter differs between research plan (C) and bundled PDF (D); arXiv version unconfirmed."]
+    },
+    {
+      "id": "ARCH-009",
+      "kind": "paper",
+      "paper_ref": "Original research proposal",
+      "lean_numbering": null,
+      "target": "Parity-profile change count",
+      "declarations": [
+        {"name": "HeadComplexity.signChanges_parity", "file": "formalization/HeadComplexity/BooleanCube/SymmetricSignChanges.lean", "statement": "signChanges n (fun k => decide (Odd k)) = n"}
+      ],
+      "status": ["upstream-formalized", "locally-reproduced", "intake-record"],
+      "gaps": [],
+      "notes": "Found already proved upstream for every n, including n = 0; reclassified as reproduction. Superseded as a research target by EXT-001 to EXT-004."
+    },
+    {
+      "id": "EXT-001",
+      "kind": "fork-extension",
+      "target": "Sign-change count at most n; symmetric head complexity at most n",
+      "declarations": [
+        {"name": "HeadComplexity.Ext.signChanges_le", "file": "formalization/HeadComplexity/Extensions/SymmetricMaximal.lean", "statement": "signChanges n F ≤ n"},
+        {"name": "HeadComplexity.Ext.HStar_symmetricFn_le", "file": "formalization/HeadComplexity/Extensions/SymmetricMaximal.lean", "statement": "HStar n (symmetricFn F) ≤ n"}
+      ],
+      "status": ["fork-extension-verified"],
+      "depends_on": ["ARCH-006"],
+      "notes": "Head form is a remark in the paper (λ = 1 in Theorem 4) and in upstream theorems.md; this is its first named Lean declaration."
+    },
+    {
+      "id": "EXT-002",
+      "kind": "fork-extension",
+      "target": "Complement invariance of the sign-change count and of symmetric head complexity",
+      "declarations": [
+        {"name": "HeadComplexity.Ext.signChanges_not", "file": "formalization/HeadComplexity/Extensions/SymmetricMaximal.lean", "statement": "(signChanges n fun k => !F k) = signChanges n F"},
+        {"name": "HeadComplexity.Ext.HStar_not_symmetricFn", "file": "formalization/HeadComplexity/Extensions/SymmetricMaximal.lean", "statement": "(HStar n fun bits => !symmetricFn F bits) = HStar n (symmetricFn F)"},
+        {"name": "HeadComplexity.Ext.HStar_not_parity", "file": "formalization/HeadComplexity/Extensions/SymmetricMaximal.lean", "statement": "(HStar n fun bits => !PARITY n bits) = n"}
+      ],
+      "status": ["fork-extension-verified"],
+      "depends_on": ["ARCH-006", "ARCH-009"]
+    },
+    {
+      "id": "EXT-003",
+      "kind": "fork-extension",
+      "target": "Maximal sign changes iff every adjacent profile value flips",
+      "declarations": [
+        {"name": "HeadComplexity.Ext.signChanges_eq_self_iff", "file": "formalization/HeadComplexity/Extensions/SymmetricMaximal.lean", "statement": "signChanges n F = n ↔ ∀ k < n, F (k + 1) = !F k"}
+      ],
+      "status": ["fork-extension-verified"],
+      "depends_on": []
+    },
+    {
+      "id": "EXT-004",
+      "kind": "fork-extension",
+      "target": "Parity and its complement are the only maximal-complexity symmetric Boolean functions",
+      "declarations": [
+        {"name": "HeadComplexity.Ext.signChanges_eq_self_iff_parity", "file": "formalization/HeadComplexity/Extensions/SymmetricMaximal.lean", "statement": "signChanges n F = n ↔ (∀ k ≤ n, F k = decide (Odd k)) ∨ ∀ k ≤ n, F k = !decide (Odd k)"},
+        {"name": "HeadComplexity.Ext.HStar_symmetricFn_eq_self_iff", "file": "formalization/HeadComplexity/Extensions/SymmetricMaximal.lean", "statement": "HStar n (symmetricFn F) = n ↔ symmetricFn F = PARITY n ∨ symmetricFn F = fun bits => !PARITY n bits"},
+        {"name": "HeadComplexity.Ext.HStar_symmetricFn_zero_cases", "file": "formalization/HeadComplexity/Extensions/SymmetricMaximal.lean", "statement": "HStar 0 (symmetricFn F) = 0 ∧ (symmetricFn F = PARITY 0 ∨ symmetricFn F = fun bits => !PARITY 0 bits)"}
+      ],
+      "status": ["fork-extension-verified"],
+      "depends_on": ["ARCH-006", "ARCH-007", "EXT-002", "EXT-003"],
+      "notes": "Corollary of the upstream symmetric characterization; scoped to symmetric Boolean functions in the paper's model. Absent from the upstream library, upstream prose, and bundled paper text (search in VERIFICATION.md)."
+    }
+  ]
+}
